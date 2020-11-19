@@ -1,15 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TareasService } from './tareas.service';
 import { Tarea, TareaEstado } from './tarea.model';
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { GetTareasFilterDto } from './dto/get-tareas-filter.dto';
+import { TareaStatusValidationPipe } from './pipes/tarea-status-validation.pipe';
 
 @Controller('tareas')
 export class TareasController {
     constructor(private tareasService: TareasService) {}
 
     @Get()
-    getTareas(@Query() filterDto: GetTareasFilterDto): Tarea[] {
+    getTareas(@Query(ValidationPipe) filterDto: GetTareasFilterDto): Tarea[] {
         if(Object.keys(filterDto).length){
             return this.tareasService.getTareaWithFilters(filterDto);
         } else {
@@ -29,25 +30,13 @@ export class TareasController {
     }
 
     @Patch('/:id/status')
-    updateTareaStatus(@Param('id') id: string, @Body('status') status: TareaEstado): Tarea {
+    updateTareaStatus(@Param('id') id: string, @Body('status', TareaStatusValidationPipe) status: TareaEstado): Tarea {
         return this.tareasService.updateTarea(id, status);
     }
 
     @Post()
+    @UsePipes(ValidationPipe)
     createTarea(@Body() createTareaDto: CreateTareaDto): Tarea {
         return this.tareasService.createTarea(createTareaDto);
     }
-
-    /* @Post()
-    createTarea(
-        @Body('title') title: string,
-        @Body('description') description: string,
-    ): Tarea {
-        return this.tareasService.createTarea(title, description);
-    } */
-
-    /* @Post()
-    createTarea(@Body() body) {
-        console.log('body', body);
-    } */
 }

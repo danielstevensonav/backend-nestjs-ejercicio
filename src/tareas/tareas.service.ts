@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Tarea, TareaEstado } from './tarea.model';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTareaDto } from './dto/create-tarea.dto';
@@ -32,7 +32,11 @@ export class TareasService {
     }
 
     getTareaById(id: string ): Tarea {
-        return this.tareas.find( tarea => tarea.id === id);
+        const found = this.tareas.find( tarea => tarea.id === id);
+        if(!found){
+            throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
+        return found;
     }
 
     createTarea(createTareaDto: CreateTareaDto): Tarea {
@@ -49,7 +53,8 @@ export class TareasService {
     }
 
     deleteTarea(id: string): void {
-        this.tareas = this.tareas.filter(tarea => tarea.id !== id);
+        const found = this.getTareaById(id);
+        this.tareas = this.tareas.filter(tarea => tarea.id !== found.id);
     }
 
     updateTarea(id: string, status: TareaEstado) {
