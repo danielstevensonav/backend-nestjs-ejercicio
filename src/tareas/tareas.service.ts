@@ -1,15 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Tarea, TareaEstado } from './tarea.model';
-import { v4 as uuidv4 } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { GetTareasFilterDto } from './dto/get-tareas-filter.dto';
+import { TareaRepository } from './tarea.repository';
+import { Tarea } from './tarea.entity';
+import { TareaEstado } from './tarea-status.enum';
 
 @Injectable()
 export class TareasService {
 
-    private tareas: Tarea[] = [];
+    constructor(
+        @InjectRepository(TareaRepository)
+        private tareaRepository: TareaRepository
+        ) {
 
-    getAllTareas(): Tarea[] {
+    }
+
+    /* private tareas: Tarea[] = []; */
+
+    /* getAllTareas(): Tarea[] {
         return this.tareas;
     }
 
@@ -29,14 +38,6 @@ export class TareasService {
         }
         
         return tareas;
-    }
-
-    getTareaById(id: string ): Tarea {
-        const found = this.tareas.find( tarea => tarea.id === id);
-        if(!found){
-            throw new NotFoundException(`Task with ID "${id}" not found`);
-        }
-        return found;
     }
 
     createTarea(createTareaDto: CreateTareaDto): Tarea {
@@ -60,6 +61,26 @@ export class TareasService {
     updateTarea(id: string, status: TareaEstado) {
         const tarea = this.getTareaById(id);
         tarea.status = status;
+        return tarea;
+    } */
+
+    async getTareaById(id: number): Promise<Tarea> {
+        const found = await this.tareaRepository.findOne(id);
+        if(!found){
+            throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
+        return found;
+    }
+
+    async createTarea(createTareaDto: CreateTareaDto): Promise<Tarea> {
+        const { title, description } = createTareaDto;
+
+        const tarea = new Tarea();
+        tarea.title = title;
+        tarea.description = description;
+        tarea.status = TareaEstado.OPEN;
+        await tarea.save();
+
         return tarea;
     }
 }

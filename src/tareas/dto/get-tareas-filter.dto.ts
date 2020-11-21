@@ -1,5 +1,5 @@
 import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
-import { TareaEstado } from '../tarea.model';
+import { TareaEstado } from '../tarea-status.enum';
 
 export class GetTareasFilterDto {
     @IsOptional()

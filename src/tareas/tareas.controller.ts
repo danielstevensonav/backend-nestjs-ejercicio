@@ -1,15 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TareasService } from './tareas.service';
-import { Tarea, TareaEstado } from './tarea.model';
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { GetTareasFilterDto } from './dto/get-tareas-filter.dto';
 import { TareaStatusValidationPipe } from './pipes/tarea-status-validation.pipe';
+import { Tarea } from './tarea.entity';
 
 @Controller('tareas')
 export class TareasController {
     constructor(private tareasService: TareasService) {}
 
-    @Get()
+    /* @Get()
     getTareas(@Query(ValidationPipe) filterDto: GetTareasFilterDto): Tarea[] {
         if(Object.keys(filterDto).length){
             return this.tareasService.getTareaWithFilters(filterDto);
@@ -37,6 +37,17 @@ export class TareasController {
     @Post()
     @UsePipes(ValidationPipe)
     createTarea(@Body() createTareaDto: CreateTareaDto): Tarea {
+        return this.tareasService.createTarea(createTareaDto);
+    } */
+
+    @Get('/:id')
+    getTareasById(@Param('id', ParseIntPipe) id: number): Promise<Tarea> {
+        return this.tareasService.getTareaById(id);
+    }
+
+    @Post()
+    @UsePipes(ValidationPipe)
+    createTarea(@Body() createTareaDto: CreateTareaDto): Promise<Tarea> {
         return this.tareasService.createTarea(createTareaDto);
     }
 }

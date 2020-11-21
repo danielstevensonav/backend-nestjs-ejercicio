@@ -1,5 +1,5 @@
 import { ArgumentMetadata, BadRequestException, PipeTransform } from "@nestjs/common";
-import { TareaEstado } from "../tarea.model";
+import { TareaEstado } from '../tarea-status.enum';
 
 export class TareaStatusValidationPipe implements PipeTransform {
     readonly allowedStatuses = [
