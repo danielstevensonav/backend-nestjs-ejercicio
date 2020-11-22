@@ -4,41 +4,16 @@ import { CreateTareaDto } from './dto/create-tarea.dto';
 import { GetTareasFilterDto } from './dto/get-tareas-filter.dto';
 import { TareaStatusValidationPipe } from './pipes/tarea-status-validation.pipe';
 import { Tarea } from './tarea.entity';
+import { TareaEstado } from './tarea-status.enum';
 
 @Controller('tareas')
 export class TareasController {
     constructor(private tareasService: TareasService) {}
 
-    /* @Get()
-    getTareas(@Query(ValidationPipe) filterDto: GetTareasFilterDto): Tarea[] {
-        if(Object.keys(filterDto).length){
-            return this.tareasService.getTareaWithFilters(filterDto);
-        } else {
-            
-        }
-        return this.tareasService.getAllTareas();
+    @Get()
+    getTareas(@Query(ValidationPipe) filterDto: GetTareasFilterDto): Promise<Tarea[]> {
+        return this.tareasService.getTareas(filterDto);
     }
-
-    @Get('/:id')
-    getTareasById(@Param('id') id: string) {
-        return this.tareasService.getTareaById(id);
-    }
-
-    @Delete('/:id')
-    deleteTarea(@Param('id') id: string): void {
-        this.tareasService.deleteTarea(id);
-    }
-
-    @Patch('/:id/status')
-    updateTareaStatus(@Param('id') id: string, @Body('status', TareaStatusValidationPipe) status: TareaEstado): Tarea {
-        return this.tareasService.updateTarea(id, status);
-    }
-
-    @Post()
-    @UsePipes(ValidationPipe)
-    createTarea(@Body() createTareaDto: CreateTareaDto): Tarea {
-        return this.tareasService.createTarea(createTareaDto);
-    } */
 
     @Get('/:id')
     getTareasById(@Param('id', ParseIntPipe) id: number): Promise<Tarea> {
@@ -49,5 +24,15 @@ export class TareasController {
     @UsePipes(ValidationPipe)
     createTarea(@Body() createTareaDto: CreateTareaDto): Promise<Tarea> {
         return this.tareasService.createTarea(createTareaDto);
+    }
+
+    @Delete('/:id')
+    deleteTarea(@Param('id', ParseIntPipe) id: number): Promise<void> {
+        return this.tareasService.deleteTarea(id);
+    }
+
+    @Patch('/:id/status')
+    updateTareaStatus(@Param('id', ParseIntPipe) id: number, @Body('status', TareaStatusValidationPipe) status: TareaEstado): Promise<Tarea> {
+        return this.tareasService.updateTareaStatus(id, status);
     }
 }

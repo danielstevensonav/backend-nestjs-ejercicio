@@ -12,57 +12,11 @@ export class TareasService {
     constructor(
         @InjectRepository(TareaRepository)
         private tareaRepository: TareaRepository
-        ) {
+        ) {}
 
+    async getTareas(filterDto: GetTareasFilterDto): Promise<Tarea[]> {
+        return this.tareaRepository.getTareas(filterDto);
     }
-
-    /* private tareas: Tarea[] = []; */
-
-    /* getAllTareas(): Tarea[] {
-        return this.tareas;
-    }
-
-    getTareaWithFilters(filterDto: GetTareasFilterDto): Tarea[] {
-        const { status, search } = filterDto;
-
-        let tareas = this.getAllTareas();
-
-        if(status) {
-            tareas = tareas.filter(tarea => tarea.status === status);
-        }
-
-        if(search) {
-            tareas = tareas.filter(tarea => 
-                tarea.title.includes(search) ||
-                tarea.description.includes(search));
-        }
-        
-        return tareas;
-    }
-
-    createTarea(createTareaDto: CreateTareaDto): Tarea {
-        const { title, description } = createTareaDto;
-
-        const tarea: Tarea = {
-            id: uuidv4(),
-            title,
-            description,
-            status: TareaEstado.OPEN,
-        };
-        this.tareas.push(tarea);
-        return tarea;
-    }
-
-    deleteTarea(id: string): void {
-        const found = this.getTareaById(id);
-        this.tareas = this.tareas.filter(tarea => tarea.id !== found.id);
-    }
-
-    updateTarea(id: string, status: TareaEstado) {
-        const tarea = this.getTareaById(id);
-        tarea.status = status;
-        return tarea;
-    } */
 
     async getTareaById(id: number): Promise<Tarea> {
         const found = await this.tareaRepository.findOne(id);
@@ -73,14 +27,21 @@ export class TareasService {
     }
 
     async createTarea(createTareaDto: CreateTareaDto): Promise<Tarea> {
-        const { title, description } = createTareaDto;
+        return this.tareaRepository.createTarea(createTareaDto);
+    }
 
-        const tarea = new Tarea();
-        tarea.title = title;
-        tarea.description = description;
-        tarea.status = TareaEstado.OPEN;
+    async deleteTarea(id: number): Promise<void> {
+        const result = await this.tareaRepository.delete(id);
+        
+        if(result.affected === 0){
+            throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
+    }
+
+    async updateTareaStatus(id: number, status: TareaEstado): Promise<Tarea> {
+        const tarea = await this.getTareaById(id);
+        tarea.status = status;
         await tarea.save();
-
         return tarea;
     }
 }
